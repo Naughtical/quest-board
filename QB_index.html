@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quest Board</title>
+  <link rel="stylesheet" href="style.css">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Rajdhani:wght@500;600;700&family=Almendra:wght@400;700&family=MedievalSharp&family=IM+Fell+English&family=Fondamento&family=Lora:wght@500;600;700&display=swap" rel="stylesheet">
+</head>
+<body data-theme="medieval">
+  <div class="quest-board">
+
+    <!-- HERO PANEL -->
+    <div class="hero-panel">
+      <div class="hero-level">
+        <div class="level-badge" id="levelBadge">
+          <span class="lvl-label">Level</span>
+          <span class="lvl-num" id="levelNum">1</span>
+        </div>
+        <div class="hero-text">
+          <span class="title" id="heroTitle">Novice Adventurer</span>
+          <span class="subtitle" id="heroSubtitle">⚔️ Your journey begins</span>
+        </div>
+      </div>
+
+      <div class="xp-block">
+        <div class="xp-row">
+          <span id="xpLabel">Experience</span>
+          <span class="xp-numbers">
+            <span id="xpCurrent">0</span> / <span id="xpNext">100</span>
+            <span class="xp-total">· total <span id="xpTotal">0</span></span>
+          </span>
+        </div>
+        <div class="xp-bar-outer">
+          <div class="xp-bar-inner" id="xpBar"></div>
+        </div>
+      </div>
+
+      <div class="streak-block" id="goldBlock"><div class="streak-icon">🪙</div><div class="streak-info"><span class="streak-count" id="goldCount">0</span><span class="streak-label">Gold</span></div><button class="tool-btn" id="openShopBtn">🛒 Shop</button></div>
+
+      <div class="streak-block" id="streakBlock">
+        <button class="streak-toggle" id="streakToggle" title="Hide streak counter">×</button>
+        <div class="streak-icon" id="streakIcon">🔥</div>
+        <div class="streak-info">
+          <span class="streak-count" id="streakCount">0</span>
+          <span class="streak-label" id="streakLabel">Day Streak</span>
+        </div>
+      </div>
+
+      <button class="tool-btn" id="showStreakBtn" style="display:none;" title="Show streak counter">🔥 Show Streak</button>
+    </div>
+
+    <!-- TEMPLATE BANNER -->
+    <div class="template-banner">
+      <div class="banner-text">
+        <div class="headline">📜 Template Library</div>
+        <div class="sub">No energy to think of quests? Pick from ready-made ones — pet care, self-care, rest, household, hospital visits, writing, art, D&amp;D. Click any to fill the form, then save.</div>
+      </div>
+      <button class="template-btn" id="openLibraryBtn">🗂️ Browse All Templates</button>
+    </div>
+
+    <!-- HEADER -->
+    <div class="board-header">
+      <h1>
+        <span class="crossed-swords">⚔️</span>
+        QUEST BOARD
+        <span class="crossed-swords">⚔️</span>
+      </h1>
+      <div class="header-actions">
+        <select class="theme-picker" id="themePicker" title="Choose a theme">
+          <option value="medieval">⚔️ Medieval</option>
+          <option value="pirate">🏴‍☠️ Pirate</option>
+          <option value="forest">🌿 Forest</option>
+        </select>
+        <button class="tool-btn" id="exportBtn" title="Download your tasks as a backup file">📤 Export</button>
+        <button class="tool-btn" id="importBtn" title="Restore from a backup file">📥 Import</button>
+        <button class="tool-btn" id="resetXpBtn" title="Reset XP, level (tasks stay)">↺ Reset Progress</button>
+        <input type="file" id="importFile" accept=".json" style="display:none">
+      </div>
+    </div>
+
+    <!-- MAIN -->
+    <div class="board-main">
+      <div class="left-column">
+        <div class="calendar-section">
+          <div class="calendar-header">
+            <div class="month-year" id="monthYearDisplay">March 2025</div>
+            <div class="nav-buttons">
+              <button id="prevMonthBtn" aria-label="Previous month">←</button>
+              <button id="nextMonthBtn" aria-label="Next month">→</button>
+            </div>
+          </div>
+          <div class="calendar-grid" id="calendarGrid"></div>
+        </div>
+
+        <!-- DAY VIEW PANEL -->
+        <div class="day-view-section" id="dayViewSection">
+          <div class="day-view-header">
+            <div class="dv-title-block">
+              <div class="dv-title" id="dvTitle">1 January 2025</div>
+              <div class="dv-weekday" id="dvWeekday">MONDAY</div>
+            </div>
+            <button class="dv-today-btn" id="dvTodayBtn" title="Jump to today">Today</button>
+          </div>
+
+          <div class="dv-section">
+            <div class="dv-section-title">
+              <span>📅 Events</span>
+              <span class="dv-count" id="dvEventsCount">0</span>
+            </div>
+            <div id="dvEventsList"></div>
+            <button class="day-view-add-event" id="dvAddEventBtn">＋ Add Event</button>
+          </div>
+
+          <div class="dv-section">
+            <div class="dv-section-title">
+              <span>⚔️ Quests</span>
+              <span class="dv-count" id="dvQuestsCount">0</span>
+            </div>
+            <div id="dvQuestsList"></div>
+          </div>
+
+          <div class="dv-section">
+            <div class="dv-section-title">
+              <span>📌 Notices</span>
+              <span class="dv-count" id="dvNoticesCount">0</span>
+            </div>
+            <div id="dvNoticesList"></div>
+          </div>
+
+          <div class="dv-hint">✎ Edit quests &amp; notices from the board →</div>
+        </div>
+
+        <!-- THE NOTICE BOARD -->
+        <div class="notice-board-section">
+          <div class="nb-header">
+            <span class="nb-title" id="nbTitle">📌 The Notice Board</span>
+            <button class="nb-reroll" id="nbRerollBtn" title="Draw a different card">🎲</button>
+            <button class="nb-reroll" id="nbEditBtn" title="Your own notice cards">✏️</button>
+          </div>
+          <div class="nb-card" id="nbCard"></div>
+          <div class="nb-scratch">
+            <label for="nbScratchpad" id="nbScratchLabel">✎ Scratchpad</label>
+            <textarea id="nbScratchpad" placeholder="Jot anything here — it saves as you type."></textarea>
+            <button class="nb-clear" id="nbClearBtn" title="Clear the scratchpad">🗑️ clear</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="tasks-section">
+        <div>
+          <div class="section-title-row">
+            <h2>⚔️ Quests</h2>
+            <button class="add-btn" id="addQuestBtn">＋ Add Quest</button>
+          </div>
+          <div class="quest-posters" id="questPosters"></div>
+        </div>
+
+        <div class="notices-section">
+          <div class="notices-header">
+            <h2>📜 Small Notices</h2>
+            <button class="add-btn" id="addNoticeBtn">＋ Add Notice</button>
+          </div>
+          <div class="notices-grid" id="noticesGrid"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- QUEST MODAL -->
+  <div class="modal-overlay" id="questModal">
+    <div class="modal">
+      <h3 id="questModalTitle">⚔️ New Quest</h3>
+      <input type="hidden" id="questId">
+      <label>📜 Quick-fill from Template (optional)</label>
+      <div class="template-picker">
+        <div class="template-picker-cats" id="templateCats"></div>
+        <div class="template-list" id="templateList"></div>
+      </div>
+      <label for="questTitle">Quest Title</label>
+      <input type="text" id="questTitle" placeholder="e.g. Big Life Admin" maxlength="80">
+      <div class="modal-row">
+        <div>
+          <label for="questEmoji">Emoji Badge</label>
+          <input type="text" id="questEmoji" placeholder="🛡️" maxlength="4">
+        </div>
+        <div>
+          <label for="questRank">Rank (XP)</label>
+          <select id="questRank">
+            <option value="common">Common (25 XP) — small thing</option>
+            <option value="rare">Rare (50 XP) — medium</option>
+            <option value="epic">Epic (100 XP) — big / draining</option>
+            <option value="legendary">Legendary (200 XP) — huge</option>
+          </select>
+        </div>
+      </div>
+      <label for="questDesc">Description / Flavour Text</label>
+      <textarea id="questDesc" placeholder="A short line about what this quest is."></textarea>
+      <label>🧭 Sub-steps (tick them off as you go)</label>
+      <div class="steps-editor" id="stepsEditor"></div>
+      <button type="button" class="add-step-btn" id="addStepBtn">＋ Add Step</button>
+      <label>🎁 Reward</label>
+      <div class="reward-picker">
+        <div class="reward-presets" id="rewardPresets"></div>
+        <input type="text" id="questReward" placeholder="Or type your own reward..." maxlength="80" style="margin-bottom:8px;">
+        <button type="button" class="reward-random-btn" id="randomRewardBtn">🎲 Surprise Me (Random Reward)</button>
+        <div class="reward-selected-display" id="rewardSelectedDisplay">
+          <span id="rewardSelectedText">No reward chosen yet</span>
+        </div>
+      </div>
+      <div class="modal-row">
+        <div>
+          <label for="questDeadline">Deadline</label>
+          <input type="text" id="questDeadline" placeholder="anytime / this week / Fri" maxlength="20">
+        </div>
+        <div>
+          <label for="questDay">Calendar Day (1–31)</label>
+          <input type="text" id="questDay" placeholder="22" maxlength="2">
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button class="btn-cancel" id="questCancel">Cancel</button>
+        <button class="btn-save" id="questSave">Save Quest</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- NOTICE MODAL -->
+  <div class="modal-overlay" id="noticeModal">
+    <div class="modal">
+      <h3 id="noticeModalTitle">📜 New Notice</h3>
+      <input type="hidden" id="noticeId">
+      <label>📜 Quick-fill from Template (optional)</label>
+      <div class="template-picker">
+        <div class="template-picker-cats" id="noticeTemplateCats"></div>
+        <div class="template-list" id="noticeTemplateList"></div>
+      </div>
+      <label for="noticeText">Task Text</label>
+      <input type="text" id="noticeText" placeholder="e.g. Fresh water for the pets" maxlength="60">
+      <div class="modal-row">
+        <div>
+          <label for="noticeEmoji">Emoji</label>
+          <input type="text" id="noticeEmoji" placeholder="💧" maxlength="4">
+        </div>
+        <div>
+          <label for="noticeWhen">When (flavour text)</label>
+          <input type="text" id="noticeWhen" placeholder="today / this evening" maxlength="30">
+        </div>
+      </div>
+      <div class="modal-row">
+        <div>
+          <label for="noticeXp">XP Value</label>
+          <input type="number" id="noticeXp" placeholder="15" min="1" max="500">
+        </div>
+        <div>
+          <label for="noticeDay">Calendar Day (1–31)</label>
+          <input type="text" id="noticeDay" placeholder="5" maxlength="2">
+        </div>
+      </div>
+      <label>🎁 Small Reward (optional)</label>
+      <div class="reward-picker">
+        <div class="reward-presets" id="noticeRewardPresets"></div>
+        <input type="text" id="noticeReward" placeholder="Or type your own..." maxlength="80" style="margin-bottom:6px;">
+        <button type="button" class="reward-random-btn" id="noticeRandomRewardBtn" style="font-size:0.72rem;padding:6px;">🎲 Surprise Me</button>
+        <div class="reward-selected-display" id="noticeRewardSelectedDisplay" style="font-size:0.75rem;min-height:30px;padding:6px;">
+          <span id="noticeRewardSelectedText">No reward chosen</span>
+        </div>
+      </div>
+      <div class="checkbox-row">
+        <input type="checkbox" id="noticeDaily">
+        <label for="noticeDaily">🔁 <span>Reset daily at midnight</span></label>
+      </div>
+      <div class="modal-actions">
+        <button class="btn-cancel" id="noticeCancel">Cancel</button>
+        <button class="btn-save" id="noticeSave">Save Notice</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- EVENT MODAL -->
+  <div class="modal-overlay" id="eventModal">
+    <div class="modal">
+      <h3 id="eventModalTitle">📅 New Event</h3>
+      <input type="hidden" id="eventId">
+      <input type="hidden" id="eventDateKey">
+      <label for="eventTitle">What is it?</label>
+      <input type="text" id="eventTitle" placeholder="e.g. Doctor's appointment" maxlength="80">
+      <div class="modal-row">
+        <div>
+          <label for="eventEmoji">Emoji</label>
+          <input type="text" id="eventEmoji" placeholder="🏥" maxlength="4">
+        </div>
+        <div>
+          <label for="eventTime">Time (optional)</label>
+          <input type="text" id="eventTime" placeholder="2:30pm" maxlength="20">
+        </div>
+      </div>
+      <label for="eventNote">Note (optional)</label>
+      <textarea id="eventNote" placeholder="Anything to remember — address, what to bring, questions."></textarea>
+      <div class="modal-actions">
+        <button class="btn-cancel" id="eventCancel">Cancel</button>
+        <button class="btn-save" id="eventSave">Save Event</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- LIBRARY MODAL -->
+  <div class="modal-overlay" id="libraryModal">
+    <div class="modal library-modal">
+      <h3>📚 Template Library</h3>
+      <div class="library-header-note">
+        Click any card to open a pre-filled New Quest form. You can edit anything before saving. These are seeds — change, delete, or ignore them as you like. Quests with multiple steps will show as an adventure checklist on the board.
+      </div>
+      <div class="library-grid" id="libraryGrid"></div>
+      <div class="modal-actions">
+        <button class="btn-cancel" id="libraryClose">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- REWARD CEREMONY -->
+  <div class="reward-overlay" id="rewardOverlay">
+    <div class="reward-ceremony">
+      <div class="ceremony-label" id="ceremonyLabel">⚔️ Quest Complete ⚔️</div>
+      <div class="ceremony-icon" id="ceremonyIcon">🏆</div>
+      <div class="ceremony-title" id="ceremonyTitle">Quest Name</div>
+      <div class="ceremony-reward" id="ceremonyReward">
+        🎁 Reward Text
+        <div class="ceremony-reward-sub">Your well-earned prize</div>
+      </div>
+      <div class="ceremony-xp" id="ceremonyXp">+50 XP</div>
+      <div class="ceremony-gold" id="ceremonyGold">+10 🪙</div>
+      <button class="ceremony-accept" id="ceremonyAccept">Claim Reward</button>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>
